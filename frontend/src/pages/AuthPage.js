@@ -47,9 +47,9 @@ export default function AuthPage() {
   const [regErr, setRegErr] = useState({});
   const [logErr, setLogErr] = useState({});
   const [formMsg, setFormMsg] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { login, setLoading, loading } = useAuth();
 
   // validate and set individual reg errors
   const handleRegInput = (field, value) => {
