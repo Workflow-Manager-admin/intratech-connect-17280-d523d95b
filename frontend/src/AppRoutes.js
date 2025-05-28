@@ -16,6 +16,7 @@ import {
   fetchComments,
   fetchUsers,
   createOrUpdateArticle,
+  deleteArticle,
   createComment,
   deleteComment,
   fetchCategories,
@@ -23,6 +24,9 @@ import {
   fetchUserById,
   searchArticles
 } from "./api";
+import { useAuth } from "./auth";
+import styled from "styled-components";
+import { fetchUserFollowing } from "./api";
 
 function MainLayout({ children, onSearch }) {
   // Flex main + sidebar
