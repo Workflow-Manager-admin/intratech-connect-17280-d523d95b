@@ -95,6 +95,8 @@ const DeleteBtn = styled.button`
 `;
 
 function Home() {
+  // Removed: const { useAuth } = ... and duplicate imports (fixed error)
+  // Everything else remains as before
   const { user } = useAuth();
   const [articles, setArticles] = useState([]);
   const [users, setUsers] = useState([]);
