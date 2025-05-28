@@ -256,9 +256,14 @@ app.get("/api/articles/:id", (req, res) => {
 app.post("/api/articles", requireAuth, (req, res) => {
   const db = getDb();
   let { articles } = db;
+  // Always override authorId, never allow from client for create
+  const { title, content, category, tags } = req.body;
   const article = {
-    ...req.body,
-    authorId: req.user.id, // always set from JWT payload, ignore client
+    title,
+    content,
+    category,
+    tags,
+    authorId: req.user.id,
     id: Date.now(),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -279,9 +284,14 @@ app.put("/api/articles/:id", requireAuth, (req, res) => {
   if (articles[idx].authorId !== req.user.id && req.user.role !== "admin") {
     return res.status(403).json({ error: "Not allowed." });
   }
+  // Only allow whitelisted fields to be updated (NEVER authorId)
+  const allowed = {};
+  ["title", "content", "category", "tags"].forEach((k) => {
+    if (k in req.body) allowed[k] = req.body[k];
+  });
   articles[idx] = {
     ...articles[idx],
-    ...req.body,
+    ...allowed,
     updatedAt: new Date().toISOString(),
   };
   setDb({ ...db, articles });
