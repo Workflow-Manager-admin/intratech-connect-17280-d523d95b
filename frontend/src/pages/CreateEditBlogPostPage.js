@@ -150,7 +150,8 @@ export default function CreateEditBlogPostPage() {
   const validate = () => {
     const errors = {};
     if (!title.trim()) errors.title = "Title is required.";
-    if (!content.replace(/<(.|\n)*?>/g, '').trim()) errors.content = "Add your article content.";
+    if (!content.replace(/<(.|
+)*?>/g, '').trim()) errors.content = "Add your article content.";
     if (!tags.length) errors.tags = "Select at least one tag.";
     if (imageFile && !/^image\//.test(imageFile.type)) errors.image = "Invalid image file.";
     setFormErr(errors);
