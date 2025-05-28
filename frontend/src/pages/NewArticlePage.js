@@ -28,7 +28,6 @@ export default function NewArticlePage() {
         content,
         category,
         tags,
-        authorId: 1 // Demo: hardcoded admin user. Normally, get from auth context/session.
       });
       navigate(`/articles/${resp.data.id}`);
     } finally {

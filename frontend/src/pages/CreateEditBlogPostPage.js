@@ -171,7 +171,6 @@ export default function CreateEditBlogPostPage() {
         content,
         tags,
         image: imageData, // send base64 or omit
-        authorId: 1 // Demo: hardcoded (Admin). Replace with session in real app.
       };
       let response;
       if (isEdit) {

@@ -35,7 +35,6 @@ export default function ArticlePage() {
     setCommentError("");
     try {
       const resp = await axios.post(`/api/articles/${id}/comments`, {
-        authorId: 2, // demo; normally from auth context!
         content: commentText,
       });
       setComments([...comments, resp.data]);
