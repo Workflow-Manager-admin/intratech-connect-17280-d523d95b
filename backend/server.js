@@ -22,7 +22,6 @@ function saveData(name, data) {
   const file = path.resolve(DATA_DIR, name + ".json");
   fs.writeFileSync(file, JSON.stringify(data, null, 2), "utf-8");
 }
-
 const initial = {
   articles: [],
   comments: [],
@@ -45,6 +44,37 @@ const getDb = () => {
 const setDb = (db) => {
   Object.entries(db).forEach(([k, v]) => saveData(k, v));
 };
+
+// --- AUTH UTILS ----
+const JWT_SECRET = process.env.JWT_SECRET || "devsecret42changeme";
+const JWT_EXPIRY = "7d";
+
+function findUserByEmail(email, users) {
+  return users.find((u) => u.email && u.email.toLowerCase() === email.toLowerCase());
+}
+
+// Select which user fields to expose to client
+function exposedUser(user) {
+  if (!user) return null;
+  // Omit passwordHash from output
+  const { passwordHash, ...rest } = user;
+  return rest;
+}
+
+// Generate JWT for a user
+function createToken(user) {
+  // Only minimally encode user: id, name, email, role.
+  return jwt.sign(
+    {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRY }
+  );
+}
 
 const app = express();
 app.use(cors());
