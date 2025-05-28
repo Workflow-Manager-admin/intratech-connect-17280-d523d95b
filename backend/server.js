@@ -3,6 +3,10 @@ const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
 
+// AUTH SUPPORT LIBS
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 const DATA_DIR = path.resolve(__dirname, "data");
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
 
