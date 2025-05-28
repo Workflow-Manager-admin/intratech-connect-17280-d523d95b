@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "name": "Admin User",
+    "bio": "Platform admin and tech enthusiast.",
+    "avatar": "",
+    "role": "admin"
+  },
+  {
+    "id": 2,
+    "name": "Jane Developer",
+    "bio": "Frontend developer passionate about React.",
+    "avatar": "",
+    "role": "user"
+  }
+]
