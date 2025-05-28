@@ -349,7 +349,7 @@ app.get("/api/categories", (req, res) => {
 /*
  * Category creation requires admin auth.
  */
-// PUBLIC_INTERFACE
+ // PUBLIC_INTERFACE
 app.post("/api/categories", requireAuth, requireAdmin, (req, res) => {
   const db = getDb();
   let { categories } = db;
@@ -357,6 +357,33 @@ app.post("/api/categories", requireAuth, requireAdmin, (req, res) => {
   categories.push(cat);
   setDb({ ...db, categories });
   res.status(201).json(cat);
+});
+
+// PUBLIC_INTERFACE
+app.put("/api/categories/:id", requireAuth, requireAdmin, (req, res) => {
+  const db = getDb();
+  let { categories } = db;
+  const idx = categories.findIndex(cat => cat.id == req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "Category not found" });
+  categories[idx] = { ...categories[idx], ...req.body };
+  setDb({ ...db, categories });
+  res.json(categories[idx]);
+});
+
+// PUBLIC_INTERFACE
+app.delete("/api/categories/:id", requireAuth, requireAdmin, (req, res) => {
+  const db = getDb();
+  let { categories, articles } = db;
+  const idx = categories.findIndex(cat => cat.id == req.params.id);
+  if (idx === -1) return res.sendStatus(204);
+  const deleted = categories[idx];
+  categories = categories.filter(cat => cat.id != req.params.id);
+  // Optionally, nullify/remove the category from articles
+  articles = articles.map(article =>
+    article.category === deleted.name ? { ...article, category: "" } : article
+  );
+  setDb({ ...db, categories, articles });
+  res.sendStatus(204);
 });
 
 // ---- TAGS ----
