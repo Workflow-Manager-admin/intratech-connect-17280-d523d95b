@@ -1,0 +1,99 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "alice",
+      "password": "hashedpassword1",
+      "email": "alice@example.com",
+      "bio": "Hello, I'm Alice!",
+      "avatar": "https://randomuser.me/api/portraits/women/1.jpg"
+    },
+    {
+      "id": "2",
+      "username": "bob",
+      "password": "hashedpassword2",
+      "email": "bob@example.com",
+      "bio": "Bob here. Love blogging about tech.",
+      "avatar": "https://randomuser.me/api/portraits/men/2.jpg"
+    },
+    {
+      "id": "3",
+      "username": "charlie",
+      "password": "hashedpassword3",
+      "email": "charlie@intratech.com",
+      "bio": "Charlie with the latest industry news.",
+      "avatar": "https://randomuser.me/api/portraits/men/3.jpg"
+    },
+    {
+      "id": "4",
+      "username": "dana",
+      "password": "hashedpassword4",
+      "email": "dana@intratech.com",
+      "bio": "Dana, UI/UX expert. Ask me about design!",
+      "avatar": "https://randomuser.me/api/portraits/women/4.jpg"
+    }
+  ],
+  "posts": [
+    {
+      "id": "100",
+      "authorId": "1",
+      "title": "Welcome to IntraTech Connect",
+      "content": "This is the first post on our awesome new platform.",
+      "timestamp": "2024-06-01T12:00:00Z"
+    },
+    {
+      "id": "101",
+      "authorId": "2",
+      "title": "Excited to Blog!",
+      "content": "Looking forward to sharing tech insights.",
+      "timestamp": "2024-06-02T09:20:00Z"
+    },
+    {
+      "id": "102",
+      "authorId": "3",
+      "title": "Quarterly Tech Roundup",
+      "content": "Highlights from this quarter in the world of technology.",
+      "timestamp": "2024-06-03T14:30:00Z"
+    },
+    {
+      "id": "103",
+      "authorId": "2",
+      "title": "How to Deploy NodeJS Apps",
+      "content": "A step by step blog of deploying NodeJS apps to production at IntraTech.",
+      "timestamp": "2024-06-03T16:45:00Z"
+    },
+    {
+      "id": "104",
+      "authorId": "4",
+      "title": "UX Best Practices",
+      "content": "Tips for creating delightful user experiences in enterprise apps.",
+      "timestamp": "2024-06-04T10:17:00Z"
+    }
+  ],
+  "follows": [
+    {
+      "followerId": "1",
+      "followingId": "2"
+    },
+    {
+      "followerId": "1",
+      "followingId": "3"
+    },
+    {
+      "followerId": "2",
+      "followingId": "1"
+    },
+    {
+      "followerId": "3",
+      "followingId": "1"
+    },
+    {
+      "followerId": "3",
+      "followingId": "4"
+    },
+    {
+      "followerId": "4",
+      "followingId": "2"
+    }
+  ]
+}
