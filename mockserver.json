@@ -1,0 +1,55 @@
+{
+  "articles": [
+    {
+      "id": 1,
+      "title": "Welcome to IntraTech Connect",
+      "content": "This is your platform for technical articles, news, and collaboration.",
+      "authorId": 1,
+      "category": "Announcements",
+      "tags": ["welcome", "news"],
+      "createdAt": "2024-06-01T12:00:00Z",
+      "updatedAt": "2024-06-01T12:00:00Z",
+      "comments": [1],
+      "featured": true
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "articleId": 1,
+      "authorId": 2,
+      "content": "Excited to see this platform live!",
+      "createdAt": "2024-06-01T13:00:00Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Announcements"
+    },
+    {
+      "id": 2,
+      "name": "Tech"
+    }
+  ],
+  "tags": [
+    { "id": 1, "name": "welcome" },
+    { "id": 2, "name": "news" }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "name": "Admin User",
+      "bio": "Platform admin and tech enthusiast.",
+      "avatar": "",
+      "role": "admin"
+    },
+    {
+      "id": 2,
+      "name": "Jane Developer",
+      "bio": "Frontend developer passionate about React.",
+      "avatar": "",
+      "role": "user"
+    }
+  ]
+}
