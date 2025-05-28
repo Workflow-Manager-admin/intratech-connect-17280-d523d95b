@@ -2,7 +2,8 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
-
+const multer = require("multer"); // For avatar uploads
+const { v4: uuidv4 } = require("uuid");
 // AUTH SUPPORT LIBS
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -79,6 +80,34 @@ function createToken(user) {
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
+
+// ---- Avatar upload storage ---
+// Save to ./uploads and generate unique filename
+const UPLOADS_PATH = path.resolve(__dirname, "uploads");
+if (!fs.existsSync(UPLOADS_PATH)) fs.mkdirSync(UPLOADS_PATH);
+
+const avatarStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, UPLOADS_PATH);
+  },
+  filename: function (req, file, cb) {
+    // Unique filename: user-UUID.ext
+    const ext = path.extname(file.originalname).toLowerCase();
+    const fname = "avatar-" + req.user.id + "-" + uuidv4() + ext;
+    cb(null, fname);
+  }
+});
+
+const avatarUpload = multer({
+  storage: avatarStorage,
+  limits: { fileSize: 3 * 1024 * 1024 }, // 3 MB max
+  fileFilter: function (req, file, cb) {
+    // Accept images only
+    const mimeOk = ["image/png", "image/jpeg", "image/jpg"];
+    if (mimeOk.includes(file.mimetype)) cb(null, true);
+    else cb(new Error("Invalid file type. Only png and jpg allowed."));
+  }
+});
 
 // ---- JWT AUTH MIDDLEWARE ----
 function requireAuth(req, res, next) {
