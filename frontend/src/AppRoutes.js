@@ -26,7 +26,7 @@ import {
 } from "./api";
 import { useAuth } from "./auth";
 import styled from "styled-components";
-import { fetchUserFollowing } from "./api";
+import { fetchUserFollowing, fetchUserProfile, fetchUserFollowers } from "./api";
 
 // Styled for blue/bright post creation area
 const NewPostBox = styled.div`
@@ -326,7 +326,7 @@ function ViewArticle() {
   );
 }
 
-import { fetchUserProfile, fetchUserFollowers } from "./api";
+
 
 // User profile page with full relationship, editing, and view
 function Profile() {
