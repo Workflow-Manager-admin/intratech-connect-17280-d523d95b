@@ -326,7 +326,6 @@ function ViewArticle() {
   );
 }
 
-import { useAuth } from "./auth";
 import { fetchUserProfile, fetchUserFollowers, fetchUserFollowing } from "./api";
 
 // User profile page with full relationship, editing, and view
