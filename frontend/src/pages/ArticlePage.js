@@ -80,8 +80,12 @@ export default function ArticlePage() {
       <Box>
         {comments.map((c) => (
           <Box key={c.id} sx={{ mb: 3, display: "flex", alignItems: "flex-start" }}>
-            <Avatar sx={{ mr: 2 }}>
-              {users[c.authorId]?.name ? users[c.authorId].name[0] : "?"}
+            <Avatar
+              src={users[c.authorId]?.avatar || ""}
+              sx={{ mr: 2 }}
+            >
+              {(!users[c.authorId]?.avatar && users[c.authorId]?.name)
+                ? users[c.authorId].name[0] : "?"}
             </Avatar>
             <Box>
               <Typography sx={{ fontWeight: 600 }}>{users[c.authorId]?.name || "User"}</Typography>
