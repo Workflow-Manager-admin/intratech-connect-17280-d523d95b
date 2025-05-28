@@ -220,12 +220,16 @@ app.get("/api/articles/:id", (req, res) => {
   res.json(article);
 });
 
+/*
+ * All article modifications require authentication.
+ */
 // PUBLIC_INTERFACE
-app.post("/api/articles", (req, res) => {
+app.post("/api/articles", requireAuth, (req, res) => {
   const db = getDb();
   let { articles } = db;
   const article = {
     ...req.body,
+    authorId: req.user.id, // always set from JWT payload, ignore client
     id: Date.now(),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -237,11 +241,15 @@ app.post("/api/articles", (req, res) => {
 });
 
 // PUBLIC_INTERFACE
-app.put("/api/articles/:id", (req, res) => {
+app.put("/api/articles/:id", requireAuth, (req, res) => {
   const db = getDb();
   let { articles } = db;
   const idx = articles.findIndex((a) => a.id == req.params.id);
   if (idx === -1) return res.status(404).json({ error: "Not found" });
+  // Only author or admin can edit
+  if (articles[idx].authorId !== req.user.id && req.user.role !== "admin") {
+    return res.status(403).json({ error: "Not allowed." });
+  }
   articles[idx] = {
     ...articles[idx],
     ...req.body,
@@ -252,9 +260,15 @@ app.put("/api/articles/:id", (req, res) => {
 });
 
 // PUBLIC_INTERFACE
-app.delete("/api/articles/:id", (req, res) => {
+app.delete("/api/articles/:id", requireAuth, (req, res) => {
   const db = getDb();
   let { articles, comments } = db;
+  const article = articles.find((a) => a.id == req.params.id);
+  if (!article) return res.sendStatus(204);
+  // Only author or admin can delete
+  if (article.authorId !== req.user.id && req.user.role !== "admin") {
+    return res.status(403).json({ error: "Not allowed." });
+  }
   articles = articles.filter((a) => a.id != req.params.id);
   comments = comments.filter((c) => c.articleId != req.params.id);
   setDb({ ...db, articles, comments });
