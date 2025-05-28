@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "title": "Welcome to IntraTech Connect",
+    "content": "This is your platform for technical articles, news, and collaboration.",
+    "authorId": 1,
+    "category": "Announcements",
+    "tags": ["welcome", "news"],
+    "createdAt": "2024-06-01T12:00:00Z",
+    "updatedAt": "2024-06-01T12:00:00Z",
+    "comments": [1],
+    "featured": true
+  }
+]
