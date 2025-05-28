@@ -80,6 +80,21 @@ function Sidebar({ onSearch }) {
           </ListItem>
         ))}
       </List>
+      {/* Admin-only management shortcut */}
+      {user && user.role === "admin" && (
+        <>
+          <Divider sx={{ my: 2 }} />
+          <Button
+            variant="outlined"
+            color="secondary"
+            fullWidth
+            sx={{ fontWeight: 600, borderRadius: 2, mb: 1 }}
+            onClick={() => navigate("/manage-categories-tags")}
+          >
+            Manage Categories & Tags
+          </Button>
+        </>
+      )}
     </Box>
   );
 }
