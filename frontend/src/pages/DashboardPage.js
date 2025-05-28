@@ -86,6 +86,7 @@ export default function DashboardPage() {
         }}
       >
         <Avatar
+          src={user?.avatar || ""}
           sx={{
             width: 76,
             height: 76,
@@ -96,7 +97,7 @@ export default function DashboardPage() {
             boxShadow: "0 2px 10px 0 #cfd7fa57",
           }}
         >
-          {user?.name?.[0] || "?"}
+          {(!user?.avatar && user?.name) ? user.name[0] : "?"}
         </Avatar>
         <Box sx={{ flex: 1 }}>
           <Typography

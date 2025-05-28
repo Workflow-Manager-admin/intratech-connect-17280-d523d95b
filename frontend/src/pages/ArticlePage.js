@@ -54,7 +54,12 @@ export default function ArticlePage() {
         {article.title}
       </Typography>
       <Box sx={{ display: "flex", alignItems: "center", mt: 2, mb: 2 }}>
-        <Avatar sx={{ mr: 1 }}>{author?.name?.[0]}</Avatar>
+        <Avatar
+          src={author?.avatar || ""}
+          sx={{ mr: 1 }}
+        >
+          {(!author?.avatar && author?.name) ? author.name[0] : ""}
+        </Avatar>
         <Box>
           <Typography variant="subtitle1">{author?.name}</Typography>
           <Typography fontSize={13} color="text.secondary">{formatDate(article.createdAt)}</Typography>
