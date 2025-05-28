@@ -209,6 +209,10 @@ export default function AppRoutes() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<AuthPage />} />
+        <Route path="/register" element={<AuthPage />} />
+
+        {/* Optionally, protect these with authentication wrapper: */}
         <Route path="/articles/new" element={<WriteArticle />} />
         <Route path="/articles/:id" element={<ViewArticle />} />
         <Route path="/profile" element={<Profile />} />
