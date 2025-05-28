@@ -44,13 +44,87 @@ function MainLayout({ children, onSearch }) {
   );
 }
 
-// Home (shows recent articles)
+import { useAuth } from "./auth";
+import styled from "styled-components";
+import { fetchUserFollowing } from "./api";
+
+// Styled for blue/bright post creation area
+const NewPostBox = styled.div`
+  background: #f2faff;
+  border: 1.5px solid #90caf9;
+  border-radius: 14px;
+  margin-bottom: 30px;
+  padding: 20px 20px 16px 20px;
+  box-shadow: 0 3px 18px 0 rgba(33,150,243,0.05);
+`;
+
+const TabBar = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 16px;
+`;
+const TabButton = styled.button`
+  background: ${({active}) => active ? "#1976d2" : "#e3f2fd"};
+  color: ${({active}) => active ? "#fff" : "#1976d2"};
+  border: none;
+  border-radius: 5px 5px 0 0;
+  padding: 12px 20px 9px 20px;
+  font-size: 1.13rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-right: 6px;
+  border-bottom: ${({active}) => active ? "3px solid #1976d2" : "1.5px solid #bbdefb" };
+  transition: all .16s;
+`;
+
+const DeleteBtn = styled.button`
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 7px 11px;
+  font-size: 0.97rem;
+  font-weight: 600;
+  margin-left: 16px;
+  cursor: pointer;
+  &:hover { background: #1976d2ee; }
+`;
+
 function Home() {
+  const { user } = useAuth();
   const [articles, setArticles] = useState([]);
   const [users, setUsers] = useState([]);
   const [tags, setTags] = useState([]);
   const [search, setSearch] = useState("");
 
+  // Tabs: global = all, feed = self+following
+  const [tab, setTab] = useState(user ? "feed" : "global");
+  const [following, setFollowing] = useState([]);
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState("");
+  const [creatingTitle, setCreatingTitle] = useState("");
+  const [creatingContent, setCreatingContent] = useState("");
+  const [postLoading, setPostLoading] = useState(false);
+
+  // Load all data
+  useEffect(() => {
+    (async () => {
+      setUsers(await fetchUsers());
+      setTags(await fetchTags());
+      setArticles(await fetchArticles());
+      if (user) {
+        setFollowing(await fetchUserFollowing(user.id));
+      }
+    })();
+  }, [user]);
+
+  // Tab select handler
+  const handleTab = (which) => {
+    setTab(which);
+    setSearch("");
+  };
+
+  // Search
   const handleSearch = async (q) => {
     setSearch(q);
     if (q) {
@@ -60,20 +134,125 @@ function Home() {
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      setUsers(await fetchUsers());
-      setTags(await fetchTags());
-      setArticles(await fetchArticles());
-    })();
-  }, []);
+  // Create new post
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    setCreateError("");
+    if (!creatingTitle.trim() || !creatingContent.trim()) {
+      setCreateError("Title and content required.");
+      return;
+    }
+    setPostLoading(true);
+    try {
+      const post = await createOrUpdateArticle({
+        title: creatingTitle.trim(),
+        content: creatingContent.trim(),
+        authorId: user.id
+      });
+      setArticles([post, ...articles]);
+      setCreatingTitle("");
+      setCreatingContent("");
+      setCreating(false);
+    } catch (err) {
+      setCreateError("Failed to submit article.");
+    }
+    setPostLoading(false);
+  };
+
+  // Delete post handler
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this article? This cannot be undone.")) return;
+    try {
+      await deleteArticle(id);
+      setArticles(articles.filter(a => a.id !== id));
+    } catch {
+      // Optionally show error
+    }
+  };
+
+  // For feed: filter posts by user or followed
+  let displayArticles = articles;
+  if (tab === "feed" && user) {
+    const allowed = new Set([user.id, ...(following||[])]);
+    displayArticles = articles.filter(a => allowed.has(a.authorId));
+  }
+
+  // Only allow create/delete for logged in users
+  // Render create new post box at top (blue theme)
+  // Delete button only for users own posts
 
   return (
     <MainLayout onSearch={handleSearch}>
-      <h1 style={{ fontSize: "2.2rem", color: "var(--kavia-orange)", margin: "0 0 24px 0" }}>
-        {search ? `Results for "${search}"` : "Latest Articles"}
+      <TabBar>
+        <TabButton
+          onClick={() => handleTab("feed")}
+          active={tab==="feed"}
+          disabled={!user}
+        >
+          Your Feed
+        </TabButton>
+        <TabButton
+          onClick={() => handleTab("global")}
+          active={tab==="global"}
+        >
+          Global Feed
+        </TabButton>
+      </TabBar>
+
+      {user && (
+        <NewPostBox>
+          <form onSubmit={handleCreate} autoComplete="off">
+            <div style={{marginBottom: 8, fontWeight: 600, color:'#1976d2'}}>Create New Post</div>
+            <input
+              style={{
+                width:"98%",fontSize:"1.11rem",padding:"9px 6px",marginBottom:8,borderRadius:6,border:"1.3px solid #90caf9",background:"#fff",color:"#1976d2"
+              }}
+              type="text"
+              placeholder="Post title"
+              value={creatingTitle}
+              onChange={e=>setCreatingTitle(e.target.value)}
+            />
+            <textarea
+              style={{
+                width:"98%",fontSize:"1.03rem",padding:"7px 6px",marginBottom:10,borderRadius:6,border:"1.3px solid #90caf9",background:"#fff",color:"#1976d2",minHeight:64
+              }}
+              placeholder="What do you want to share?"
+              value={creatingContent}
+              onChange={e=>setCreatingContent(e.target.value)}
+            />
+            {createError && <div style={{color:"#c62828",marginBottom:4,fontWeight:500}}>{createError}</div>}
+            <button
+              className="btn"
+              type="submit"
+              disabled={postLoading}
+              style={{background:"#1976d2",color:"#fff",fontWeight:"bold",padding:"9px 22px",borderRadius:8,fontSize:"1.09rem",border:"none",marginTop:3}}
+            >
+              {postLoading?"Posting...":"Publish"}
+            </button>
+          </form>
+        </NewPostBox>
+      )}
+
+      <h1 style={{ fontSize: "2.1rem", color: "#1976d2", margin: "0 0 24px 0", fontWeight:700 }}>
+        {search ? `Results for "${search}"` : tab==="feed" && user ? "Your Feed" : "Global Feed"}
       </h1>
-      <ArticleList articles={articles} users={users} tags={tags} />
+
+      <ArticleList
+        articles={displayArticles}
+        users={users}
+        tags={tags}
+        renderActions={user ? (article) =>
+          article.authorId === user.id
+            ? <DeleteBtn type="button" onClick={() => handleDelete(article.id)}>Delete</DeleteBtn>
+            : null
+        : null}
+      />
+
+      {!user &&
+        <div style={{marginTop:22, fontSize:"1.07rem", color:"#1976d2"}}>
+          Want to create posts and follow people? <b><a href="/login" style={{color:"#1976d2"}}>Sign in</a></b> to join the conversation!
+        </div>
+      }
     </MainLayout>
   );
 }

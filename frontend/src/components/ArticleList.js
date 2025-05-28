@@ -7,7 +7,11 @@ const ListContainer = styled.div`
   flex-direction: column;
 `;
 
-export default function ArticleList({ articles, users, tags }) {
+/**
+ * PUBLIC_INTERFACE
+ * ArticleList - now supports renderActions prop for contextual buttons
+ */
+export default function ArticleList({ articles, users, tags, renderActions }) {
   if (!Array.isArray(articles)) return null;
   return (
     <ListContainer>
@@ -17,12 +21,14 @@ export default function ArticleList({ articles, users, tags }) {
           ? tags?.filter(t => article.tags.includes(t.id)) ?? []
           : [];
         return (
-          <ArticleCard
-            key={article.id}
-            article={article}
-            author={author}
-            tags={articleTags}
-          />
+          <div key={article.id} style={{position: "relative"}}>
+            <ArticleCard
+              article={article}
+              author={author}
+              tags={articleTags}
+            />
+            {renderActions && renderActions(article)}
+          </div>
         );
       })}
     </ListContainer>
