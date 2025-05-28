@@ -187,19 +187,22 @@ export default function UserProfile({
   const [loading, setLoading] = useState(false);
   const [followBusy, setFollowBusy] = useState(false);
 
-  // For mapping IDs to names
-  const usersById = {};
-  (allUsers || []).forEach(u => { usersById[u.id] = u; });
+  // Map user id to user object for fast lookup
+  const usersById = React.useMemo(() => {
+    const dict = {};
+    (allUsers || []).forEach(u => { dict[u.id] = u; });
+    return dict;
+  }, [allUsers]);
 
   const isMe = !!currentUser && user && currentUser.id === user.id;
   const isLoggedIn = !!currentUser;
 
-  // Load followers/following info
+  // Load followers/following (updates after change)
   useEffect(() => {
     if (!user?.id) return;
-    fetchUserFollowers(user.id).then(setFollowers);
-    fetchUserFollowing(user.id).then(setFollowing);
-  }, [user?.id]);
+    fetchUserFollowers(user.id).then(arr => setFollowers(arr || []));
+    fetchUserFollowing(user.id).then(arr => setFollowing(arr || []));
+  }, [user?.id, refreshProfile]);
 
   // Reset edit form when switching users
   useEffect(() => {
@@ -211,7 +214,7 @@ export default function UserProfile({
     setListOpen(null);
   }, [user?.id]);
 
-  // Render Followers/Following dialog
+  // Open followers/following list
   function renderListDialog(kind) {
     const ids = kind === "followers" ? followers : following;
     return (
@@ -233,7 +236,7 @@ export default function UserProfile({
     );
   }
 
-  // Profile editing handlers
+  // Profile editing
   function handleStartEdit() {
     setEditing(true); setApiError("");
   }
@@ -253,37 +256,28 @@ export default function UserProfile({
       });
       setEditing(false);
       setApiError("");
-      if (refreshProfile) refreshProfile(); // Reload parent state
+      if (refreshProfile) refreshProfile(); // reload data after update
     } catch {
       setApiError("Update failed.");
     }
     setLoading(false);
   }
 
-  // Follow/unfollow logic
-  const doIFollow = !!currentUser
-    && !!user
-    && following
-    && following.includes(currentUser.id);
-
-  // The correct meaning: is currentUser following the viewed user
-  const iAmFollowing = !!currentUser
-    && !!user
-    && followers
+  // Is currentUser following the viewed user
+  const iAmFollowing = !!currentUser && !!user && Array.isArray(followers)
     && followers.includes(currentUser.id);
 
   async function handleFollowToggle() {
     setFollowBusy(true);
     try {
       if (!iAmFollowing) {
-        // Send follow request
         await followUser(currentUser.id, user.id);
       } else {
         await unfollowUser(currentUser.id, user.id);
       }
-      // Refetch followers/following after
-      fetchUserFollowers(user.id).then(setFollowers);
-      fetchUserFollowing(user.id).then(setFollowing);
+      // Re-load
+      fetchUserFollowers(user.id).then(arr => setFollowers(arr || []));
+      fetchUserFollowing(user.id).then(arr => setFollowing(arr || []));
       if (refreshProfile) refreshProfile();
     } catch {
       setApiError("Failed to update follow.");
@@ -302,7 +296,7 @@ export default function UserProfile({
   }
   return (
     <ProfileContainer>
-      <div style={{ display: "flex", alignItems: "center", minHeight: 94, position:"relative" }}>
+      <div style={{ display: "flex", alignItems: "center", minHeight: 94, position: "relative" }}>
         {/* Avatar */}
         {editing ? (
           <div style={{marginRight:24}}>
@@ -320,15 +314,15 @@ export default function UserProfile({
         )}
         <div style={{flex: 1, minWidth:0}}>
           <NameRow>
-          {editing ? (
-            <NameField value={editName} onChange={e=>setEditName(e.target.value)} />
-          ) : (
-            <span style={{ fontSize: "1.28rem", fontWeight: 700, color:"#1565c0" }}>{user.name}</span>
-          )}
-          {isMe && !editing &&
-            <button style={{marginLeft:12, padding:"6px 15px",border:"none",borderRadius:8,background:"#e3f2fd",color:"#1976d2",fontSize:"1.04rem",fontWeight:700,cursor:"pointer"}}
-              onClick={handleStartEdit}>Edit</button>
-          }
+            {editing ? (
+              <NameField value={editName} onChange={e=>setEditName(e.target.value)} />
+            ) : (
+              <span style={{ fontSize: "1.28rem", fontWeight: 700, color:"#1565c0" }}>{user.name}</span>
+            )}
+            {isMe && !editing &&
+              <button style={{marginLeft:12, padding:"6px 15px",border:"none",borderRadius:8,background:"#e3f2fd",color:"#1976d2",fontSize:"1.04rem",fontWeight:700,cursor:"pointer"}}
+                onClick={handleStartEdit}>Edit</button>
+            }
           </NameRow>
           {editing ? (
             <BioEdit value={editBio} onChange={e=>setEditBio(e.target.value)} placeholder="Write your bio here" />
