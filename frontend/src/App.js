@@ -10,6 +10,7 @@ import SearchResultsPage from "./pages/SearchResultsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import AuthPage from "./pages/AuthPage";
 import AllPostsPage from "./pages/AllPostsPage"; // To be created
+import ManageCategoriesTagsPage from "./pages/ManageCategoriesTagsPage";
 
 const App = () => (
   <Routes>
@@ -25,6 +26,7 @@ const App = () => (
       <Route path="/articles/:id" element={<ArticlePage />} />
       <Route path="/users/:id" element={<UserProfilePage />} />
       <Route path="/search" element={<SearchResultsPage />} />
+      <Route path="/manage-categories-tags" element={<ManageCategoriesTagsPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Route>
   </Routes>

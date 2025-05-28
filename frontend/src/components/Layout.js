@@ -12,10 +12,13 @@ import axios from "axios";
 
 const drawerWidth = 280;
 
+import { useAuth } from "../AuthContext";
+
 function Sidebar({ onSearch }) {
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [search, setSearch] = useState("");
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
