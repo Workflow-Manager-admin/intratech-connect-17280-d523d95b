@@ -1,4 +1,4 @@
-#!/bin/bash
+ha#!/bin/bash
 cd /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/frontend
 npm run build
 EXIT_CODE=$?
