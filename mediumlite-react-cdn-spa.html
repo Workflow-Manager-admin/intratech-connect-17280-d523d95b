@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>MediumLite - Bright Blue Blog SPA</title>
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- React Router DOM -->
+    <script crossorigin src="https://unpkg.com/react-router-dom@6.22.0/umd/react-router-dom.development.js"></script>
+    <!-- Tailwind via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Custom Tailwind config for bright blue accent
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'bright-blue': '#2196f3',
+              'lighter-blue': '#e3f2fd',
+              'accent-blue': '#1976d2'
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="icon" href="data:,"/>
+    <style>
+      body {
+        background: #e3f2fd;
+        min-height: 100vh;
+        font-family: 'Inter', system-ui, sans-serif;
+      }
+      .tw-shadow {
+        box-shadow: 0 3px 22px 0 rgba(33,150,243,0.13);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/javascript">
+      // Simple "DB" and Auth Layer using localStorage
+      // Keys: users, posts, follows, login_user_id
+
+      // A small utility for storage
+      const db = {
+        getUsers() {
+          return JSON.parse(localStorage.getItem("users") || "[]");
+        },
+        getUserByUsername(username) {
+          return this.getUsers().find(u => u.username === username);
+        },
+        getUserById(id) {
+          return this.getUsers().find(u => u.id === id);
+        },
+        saveUsers(users) {
+          localStorage.setItem("users", JSON.stringify(users));
+        },
+        addUser(user) {
+          const users = this.getUsers();
+          users.push(user);
+          this.saveUsers(users);
+        },
+        updateUser(id, updates) {
+          let users = this.getUsers();
+          users = users.map(u => u.id === id ? { ...u, ...updates } : u);
+          this.saveUsers(users);
+        },
+        getPosts() {
+          return JSON.parse(localStorage.getItem("posts") || "[]");
+        },
+        getPostsByAuthor(userId) {
+          return this.getPosts().filter(p => p.authorId === userId);
+        },
+        getPost(id) {
+          return this.getPosts().find(p => p.id === id);
+        },
+        savePosts(posts) {
+          localStorage.setItem("posts", JSON.stringify(posts));
+        },
+        addPost(post) {
+          const posts = this.getPosts();
+          posts.unshift(post); // newest first
+          this.savePosts(posts);
+        },
+        updatePost(id, updates) {
+          let posts = this.getPosts();
+          posts = posts.map(p => p.id === id ? {...p, ...updates} : p);
+          this.savePosts(posts);
+        },
+        deletePost(id) {
+          let posts = this.getPosts();
+          posts = posts.filter(p => p.id !== id);
+          this.savePosts(posts);
+        },
+        getFollows() {
+          // [{follower, followed}]
+          return JSON.parse(localStorage.getItem("follows") || "[]");
+        },
+        addFollow(follower, followed) {
+          const follows = this.getFollows();
+          follows.push({follower, followed});
+          localStorage.setItem("follows", JSON.stringify(follows));
+        },
+        removeFollow(follower, followed) {
+          let follows = this.getFollows();
+          follows = follows.filter(f => !(f.follower === follower && f.followed === followed));
+          localStorage.setItem("follows", JSON.stringify(follows));
+        },
+        getFollowing(userId) {
+          return this.getFollows().filter(f => f.follower === userId).map(f => f.followed);
+        },
+        getFollowers(userId) {
+          return this.getFollows().filter(f => f.followed === userId).map(f => f.follower);
+        }
+      };
+
+      // Auth management
+      const auth = {
+        getCurrentUserId() {
+          return localStorage.getItem("login_user_id");
+        },
+        getCurrentUser() {
+          return db.getUserById(this.getCurrentUserId());
+        },
+        login(username, password) {
+          const user = db.getUserByUsername(username);
+          if (user && user.password === password) {
+            localStorage.setItem("login_user_id", user.id);
+            return true;
+          }
+          return false;
+        },
+        logout() {
+          localStorage.removeItem("login_user_id");
+        },
+        register(username, password, displayName) {
+          if (db.getUserByUsername(username)) {
+            return { success: false, msg: "Username already taken" };
+          }
+          const id = "u_" + Math.random().toString(36).slice(2,12);
+          db.addUser({
+            id,
+            username, password,
+            displayName: displayName || username,
+            bio: "",
+            avatar: null
+          });
+          localStorage.setItem("login_user_id", id);
+          return { success: true };
+        },
+      };
+
+      // Utility for fake generated avatars
+      function avatarUrl(username) {
+        return 'https://api.dicebear.com/7.x/pixel-art/svg?seed=' + encodeURIComponent(username);
+      }
+
+      // Seed one user if empty:
+      if (db.getUsers().length === 0) {
+        db.addUser({ id: "u_guest", username: "guest", password: "guest123", displayName: "Guest User", bio: "🌏 Welcome to MediumLite, the demo blogging platform!", avatar: null });
+        db.savePosts([
+          {
+            id: "p1",
+            title: "Welcome to MediumLite!",
+            content: "This is a demo article.
+You may login with **guest/guest123** to play with features.
+Write, edit or delete articles. Follow users. Try editing your profile. Happy blogging!",
+            authorId: "u_guest",
+            createdAt: new Date().toISOString()
+          }
+        ]);
+      }
+
+      // Now, the App
+      const {
+        createElement: h,
+        useState, useEffect, useRef, useCallback, useMemo, Fragment
+      } = React;
+      const {
+        BrowserRouter, Routes, Route, Link, useNavigate, useParams, Navigate, useLocation
+      } = ReactRouterDOM;
+
+      // Layout Components
+      function Navbar({user, onLogout}) {
+        return h('nav', {
+          className: 'sticky top-0 z-20 flex items-center justify-between px-5 py-3 bg-white shadow-lg border-b border-blue-100'
+        }, [
+          h(Link, { to: "/", className: "flex items-center gap-3 font-bold text-2xl text-bright-blue" }, [
+            h('span', {className: "text-accent-blue"}, "📝"),
+            "MediumLite"
+          ]),
+          h('div', {className: "flex items-center gap-5 text-base font-semibold"},
+            [
+              h(Link, {to: "/", className: navClass("")}, "Home"),
+              user && [
+                h(Link, {to: "/write", className: navClass("write")}, "Write"),
+                h(Link, {to: "/profile/"+user.id, className: navClass("profile")}, "Profile")
+              ],
+              !user && [
+                h(Link, {to: "/login", className: navClass("login")}, "Login"),
+                h(Link, {to: "/register", className: navClass("register")}, "Register"),
+              ],
+              user && h("button", {
+                className: "ml-2 py-1 px-4 rounded bg-accent-blue text-white hover:bg-bright-blue transition", 
+                onClick: onLogout
+              }, "Logout")
+            ]
+          )
+        ]);
+      }
+      function navClass(name) {
+        return "py-1 px-4 rounded hover:bg-lighter-blue text-accent-blue hover:text-bright-blue transition";
+      }
+
+      function Container({children}) {
+        return h('div', {className: "max-w-4xl mx-auto w-full mt-10 px-2 sm:px-0 min-h-[80vh]"}, children);
+      }
+
+      function BlueCard({children, className}) {
+        return h('div', {className: "bg-white tw-shadow rounded-md p-6 mb-7 "+(className||"")}, children);
+      }
+
+      // Auth Wrappers
+      function RequireAuth({children}) {
+        const user = auth.getCurrentUser();
+        const location = useLocation();
+        if (!user) return h(Navigate, {to:"/login", replace:true, state:{ from: location.pathname }});
+        return h(Fragment, null, children);
+      }
+      function RedirectIfAuth({children}) {
+        const user = auth.getCurrentUser();
+        if (user) return h(Navigate, {to:"/"});
+        return h(Fragment, null, children);
+      }
+
+      // Pages
+      function LoginPage() {
+        const nav = useNavigate();
+        const [form, setForm] = useState({username:"", password:""});
+        const [error, setError] = useState("");
+        function submit(e) {
+          e.preventDefault();
+          if (!form.username || !form.password) return setError("Please fill all fields");
+          if (!auth.login(form.username.trim(), form.password)) {
+            setError("Invalid username or password");
+            return;
+          }
+          nav("/");
+        }
+        return h(Container, null,
+          h(BlueCard, null, [
+            h('h2', {className: "text-2xl font-bold mb-2 text-bright-blue"}, "Sign In"),
+            h('form', {onSubmit:submit}, [
+              h('input', {
+                className: inputClass, type:"text", autoFocus:true, placeholder:"Username", autoComplete:"username",
+                value: form.username, onChange: e=>setForm(f=>({...f,username:e.target.value}))
+              }),
+              h('input', {
+                className: inputClass, type:"password", placeholder:"Password", autoComplete:"current-password",
+                value: form.password, onChange: e=>setForm(f=>({...f,password:e.target.value}))
+              }),
+              error && h('div', {className: "text-red-600 font-semibold mb-1"}, error),
+              h('button', {type:"submit", className:"w-full mt-2 py-2 rounded bg-bright-blue text-white font-bold text-lg hover:bg-accent-blue transition"}, "Login"),
+              h('div', {className:"mt-3 text-blue-700"}, [
+                "New? ", h(Link, {to:"/register", className: "underline font-semibold"}, "Create an account")
+              ])
+            ])
+          ])
+        );
+      }
+
+      function RegisterPage() {
+        const nav = useNavigate();
+        const [form, setForm] = useState({username:"", password:"", displayName:""});
+        const [error, setError] = useState("");
+        function submit(e) {
+          e.preventDefault();
+          if (!form.username || !form.password) return setError("Please fill all fields");
+          const r = auth.register(form.username.trim(), form.password, form.displayName.trim());
+          if (!r.success) return setError(r.msg);
+          nav("/");
+        }
+        return h(Container, null,
+          h(BlueCard, null, [
+            h('h2', {className: "text-2xl font-bold mb-2 text-bright-blue"}, "Sign Up"),
+            h('form', {onSubmit:submit}, [
+              h('input', {
+                className: inputClass, type:"text", autoFocus:true, placeholder:"Username", autoComplete:"username",
+                value: form.username, onChange: e=>setForm(f=>({...f,username:e.target.value}))
+              }),
+              h('input', {
+                className: inputClass, type:"text", placeholder:"Display name (optional)",
+                value: form.displayName, onChange: e=>setForm(f=>({...f,displayName:e.target.value}))
+              }),
+              h('input', {
+                className: inputClass, type:"password", placeholder:"Password", autoComplete:"new-password",
+                value: form.password, onChange: e=>setForm(f=>({...f,password:e.target.value}))
+              }),
+              error && h('div', {className: "text-red-600 font-semibold mb-1"}, error),
+              h('button', {type:"submit", className:"w-full mt-2 py-2 rounded bg-bright-blue text-white font-bold text-lg hover:bg-accent-blue transition"}, "Register"),
+              h('div', {className:"mt-3 text-blue-700"}, [
+                "Have an account? ", h(Link, {to:"/login", className: "underline font-semibold"}, "Sign in")
+              ])
+            ])
+          ])
+        );
+      }
+
+      // Home/Feed Page
+      function HomePage() {
+        const user = auth.getCurrentUser();
+        const [tab, setTab] = useState("all");
+        const [search, setSearch] = useState("");
+        const [query, setQuery] = useState("");
+        const posts = db.getPosts();
+        const users = db.getUsers();
+
+        let filtered = posts;
+        if (tab === "following" && user) {
+          const followingIds = db.getFollowing(user.id);
+          filtered = posts.filter(p => followingIds.includes(p.authorId));
+        }
+        if (query) {
+          filtered = filtered.filter(p => 
+            (p.title+" "+p.content).toLowerCase().includes(query.toLowerCase())
+          );
+        }
+        return h(Container, null, [
+          h('div', {className:"flex items-end justify-between mb-6"},
+            [
+              h('h1', {className:"text-2xl font-bold text-bright-blue"}, [
+                (tab === "all" ? "Explore " : "Your Feed"),
+                h('span', {className:"hidden sm:inline text-accent-blue font-normal pl-2 text-base"}, (tab === "all" ? "All Articles" : "Following"))
+              ]),
+              user && h('div', {className:"flex gap-2"},
+                [
+                  h('button', {
+                    className: (tab==="all"?"bg-blue-100":"bg-white")+" border border-bright-blue text-accent-blue font-semibold px-4 py-1 rounded-l transition",
+                    onClick: ()=>setTab("all")
+                  }, "All"),
+                  h('button', {
+                    className: (tab==="following"?"bg-blue-100":"bg-white")+" border border-bright-blue text-accent-blue font-semibold px-4 py-1 rounded-r transition",
+                    onClick: ()=>setTab("following"),
+                  }, "Following"),
+                ]
+              )
+            ]
+          ),
+          h('div', {className:"mb-6 flex gap-2"},
+            h('input', {
+              className: "border border-bright-blue px-3 py-2 rounded w-72 max-w-full bg-white",
+              value: search, type:"text", placeholder:"Search articles...",
+              onChange: e=>setSearch(e.target.value),
+              onKeyDown: e => { if(e.key==="Enter")setQuery(search);}
+            }),
+            h('button', {
+              className:"rounded px-3 py-2 bg-bright-blue text-white font-semibold hover:bg-accent-blue transition",
+              onClick: ()=>setQuery(search)
+            }, "Search")
+          ),
+          filtered.length === 0 && h(BlueCard, {className:"!py-9 flex items-center gap-2 justify-center"}, [
+            h('span', {className:"text-3xl text-bright-blue"}, "🔍"),
+            h('span', {className:"ml-2 font-semibold text-lg text-accent-blue"}, "No articles found")
+          ]),
+          filtered.map(post => h(PostCard, {post, users, user}))
+        ]);
+      }
+
+      // Article Card for Feed
+      function PostCard({post, users, user}) {
