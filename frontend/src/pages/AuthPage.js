@@ -99,9 +99,7 @@ export default function AuthPage() {
         email: reg.email,
         password: reg.password,
       });
-      // On success, store token & redirect
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      login(res.data.token, res.data.user);
       setFormMsg("");
       // Redirect to dashboard or home
       navigate("/dashboard");
@@ -119,11 +117,11 @@ export default function AuthPage() {
       setLoading(false);
     }
   };
+
   // PUBLIC_INTERFACE
   const handleLog = async (e) => {
     e.preventDefault();
-    setFormMsg("");
-    setLogErr({});
+    setFormMsg(""); setLogErr({});
     if (!validateLogin(log, true)) {
       setFormMsg("Please check your login details.");
       return;
@@ -134,8 +132,7 @@ export default function AuthPage() {
         email: log.email,
         password: log.password,
       });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      login(res.data.token, res.data.user);
       setFormMsg("");
       navigate("/dashboard");
     } catch (err) {
@@ -312,9 +309,6 @@ export default function AuthPage() {
                 {formMsg}
               </FormHelperText>
             )}
-            <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 2 }}>
-              Demo only. No real authentication.
-            </Typography>
           </form>
         </AuthTabPanel>
         <AuthTabPanel value={mode} index={1}>
