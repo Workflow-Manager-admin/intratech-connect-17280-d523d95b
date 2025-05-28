@@ -1,0 +1,4 @@
+{
+    "command": "PORT=<port> BROWSER=none npm start",
+    "working_directory": "/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect"
+}
