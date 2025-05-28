@@ -12,6 +12,8 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { Lock, Email, Person, Visibility, VisibilityOff } from "@mui/icons-material";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 // Utility functions for validation
 const validateEmail = (email) =>
@@ -35,7 +37,7 @@ const initialReg = { name: "", email: "", password: "" };
 const initialLog = { email: "", password: "" };
 
 export default function AuthPage() {
-  const [mode, setMode] = useState(0);
+  const [mode, setMode] = useState(0); // 0: login, 1: register
   const [reg, setReg] = useState(initialReg);
   const [log, setLog] = useState(initialLog);
   const [showPass, setShowPass] = useState(false);
@@ -44,6 +46,9 @@ export default function AuthPage() {
   const [regErr, setRegErr] = useState({});
   const [logErr, setLogErr] = useState({});
   const [formMsg, setFormMsg] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   // validate and set individual reg errors
   const handleRegInput = (field, value) => {
@@ -77,23 +82,74 @@ export default function AuthPage() {
     return !Object.keys(errors).length;
   };
 
-  // SUBMIT HANDLERS
-  const handleReg = (e) => {
+  // PUBLIC_INTERFACE
+  const handleReg = async (e) => {
     e.preventDefault();
     setFormMsg("");
-    if (validateRegistration(reg, true)) {
-      setFormMsg("Registered! (demo only)");
-    } else {
+    setRegErr({});
+    if (!validateRegistration(reg, true)) {
       setFormMsg("Please fix the fields marked in red.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await axios.post("/api/auth/register", {
+        name: reg.name,
+        email: reg.email,
+        password: reg.password,
+      });
+      // On success, store token & redirect
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      setFormMsg("");
+      // Redirect to dashboard or home
+      navigate("/dashboard");
+    } catch (err) {
+      let msg = "Registration failed.";
+      if (err.response && err.response.data && err.response.data.error) {
+        msg = err.response.data.error;
+      }
+      setFormMsg(msg);
+      // Handle specific field errors (email conflict, etc.)
+      if (msg.toLowerCase().includes("email")) {
+        setRegErr(r => ({ ...r, email: msg }));
+      }
+    } finally {
+      setLoading(false);
     }
   };
-  const handleLog = (e) => {
+  // PUBLIC_INTERFACE
+  const handleLog = async (e) => {
     e.preventDefault();
     setFormMsg("");
-    if (validateLogin(log, true)) {
-      setFormMsg("Logged in! (demo only)");
-    } else {
+    setLogErr({});
+    if (!validateLogin(log, true)) {
       setFormMsg("Please check your login details.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await axios.post("/api/auth/login", {
+        email: log.email,
+        password: log.password,
+      });
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      setFormMsg("");
+      navigate("/dashboard");
+    } catch (err) {
+      let msg = "Login failed.";
+      if (err.response && err.response.data && err.response.data.error) {
+        msg = err.response.data.error;
+      }
+      setFormMsg(msg);
+      if (msg.toLowerCase().includes("email")) {
+        setLogErr(e => ({ ...e, email: msg }));
+      } else if (msg.toLowerCase().includes("password")) {
+        setLogErr(e => ({ ...e, password: msg }));
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
