@@ -328,8 +328,6 @@ function ViewArticle() {
 
 import { fetchUserProfile, fetchUserFollowers } from "./api";
 
-import { fetchUserProfile, fetchUserFollowers } from "./api";
-
 // User profile page with full relationship, editing, and view
 function Profile() {
   const { user: authUser } = useAuth();
