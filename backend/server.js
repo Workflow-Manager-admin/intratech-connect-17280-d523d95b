@@ -397,7 +397,7 @@ app.get("/api/tags", (req, res) => {
 /*
  * Tag creation requires admin auth.
  */
-// PUBLIC_INTERFACE
+ // PUBLIC_INTERFACE
 app.post("/api/tags", requireAuth, requireAdmin, (req, res) => {
   const db = getDb();
   let { tags } = db;
@@ -405,6 +405,36 @@ app.post("/api/tags", requireAuth, requireAdmin, (req, res) => {
   tags.push(tag);
   setDb({ ...db, tags });
   res.status(201).json(tag);
+});
+
+// PUBLIC_INTERFACE
+app.put("/api/tags/:id", requireAuth, requireAdmin, (req, res) => {
+  const db = getDb();
+  let { tags } = db;
+  const idx = tags.findIndex(tag => tag.id == req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "Tag not found" });
+  tags[idx] = { ...tags[idx], ...req.body };
+  setDb({ ...db, tags });
+  res.json(tags[idx]);
+});
+
+// PUBLIC_INTERFACE
+app.delete("/api/tags/:id", requireAuth, requireAdmin, (req, res) => {
+  const db = getDb();
+  let { tags, articles } = db;
+  const idx = tags.findIndex(tag => tag.id == req.params.id);
+  if (idx === -1) return res.sendStatus(204);
+  const deleted = tags[idx];
+  tags = tags.filter(tag => tag.id != req.params.id);
+  // Remove tag from all articles
+  articles = articles.map(article => ({
+    ...article,
+    tags: Array.isArray(article.tags)
+      ? article.tags.filter(t => t !== deleted.name)
+      : article.tags,
+  }));
+  setDb({ ...db, tags, articles });
+  res.sendStatus(204);
 });
 
 /**
