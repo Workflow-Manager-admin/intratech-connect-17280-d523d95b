@@ -261,33 +261,21 @@ export default function UserProfile({
   }
 
   // Follow/unfollow logic
-  const iFollow =
-    !!currentUser && !!user && following.includes(currentUser.id)
-      ? false
-      : !!currentUser && following && following.includes(currentUser.id);
+  const doIFollow = !!currentUser
+    && !!user
+    && following
+    && following.includes(currentUser.id);
 
-  const iAmFollowing =
-    !!currentUser && !!user && following && following.includes(currentUser.id)
-      ? false
-      : !!currentUser && following && following.includes(currentUser.id);
-
-  const doIFollow =
-    !!currentUser && !!user && following && following.includes(currentUser.id)
-      ? false
-      : !!currentUser && following.includes(currentUser.id);
-
-  const isFollowing =
-    !!currentUser &&
-    !!user &&
-    following &&
-    following.includes(currentUser.id)
-      ? false
-      : !!currentUser && currentUser.id !== user.id && followers.includes(currentUser.id);
+  // The correct meaning: is currentUser following the viewed user
+  const iAmFollowing = !!currentUser
+    && !!user
+    && followers
+    && followers.includes(currentUser.id);
 
   async function handleFollowToggle() {
     setFollowBusy(true);
     try {
-      if (!isFollowing) {
+      if (!iAmFollowing) {
         // Send follow request
         await followUser(currentUser.id, user.id);
       } else {
@@ -355,11 +343,11 @@ export default function UserProfile({
             {/* Follow/unfollow controls */}
             {!isMe && isLoggedIn && (
               <FollowBtn
-                following={Boolean(isFollowing)}
+                following={Boolean(iAmFollowing)}
                 onClick={handleFollowToggle}
                 disabled={followBusy}
               >
-                {isFollowing ? "Unfollow" : "Follow"}
+                {iAmFollowing ? "Unfollow" : "Follow"}
               </FollowBtn>
             )}
           </BtnRow>
