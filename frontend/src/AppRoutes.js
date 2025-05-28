@@ -326,7 +326,7 @@ function ViewArticle() {
   );
 }
 
-import { fetchUserProfile, fetchUserFollowers, fetchUserFollowing } from "./api";
+import { fetchUserProfile, fetchUserFollowers } from "./api";
 
 // User profile page with full relationship, editing, and view
 function Profile() {
