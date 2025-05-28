@@ -345,6 +345,7 @@ function Profile() {
     (async () => {
       let uid = authUser?.id;
       let profileUser = null;
+      // No redeclarations of fetchUserProfile/fetchUserFollowers here!
       let allU = await fetchUsers();
       setAllUsers(allU);
       if (uid) {
