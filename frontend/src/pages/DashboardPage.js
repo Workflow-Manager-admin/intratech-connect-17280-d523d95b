@@ -20,11 +20,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-/**
- * Demo: In a real app, the user's ID or info should come from the auth/session context.
- * Here, we'll use a hardcoded userId = 1 (Admin User).
- */
-const ACTIVE_USER_ID = 1;
+import { useAuth } from "../AuthContext";
 
 const formatDate = (d) =>
   new Date(d).toLocaleDateString(undefined, {
