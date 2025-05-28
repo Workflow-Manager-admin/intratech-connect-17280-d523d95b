@@ -326,26 +326,54 @@ function ViewArticle() {
   );
 }
 
-// User profile page
+import { useAuth } from "./auth";
+import { fetchUserProfile, fetchUserFollowers, fetchUserFollowing } from "./api";
+
+// User profile page with full relationship, editing, and view
 function Profile() {
-  const [user, setUser] = useState(null);
+  const { user: authUser } = useAuth();
+  const [user, setUser] = useState(null); // viewed profile
   const [userArticles, setUserArticles] = useState([]);
   const [tags, setTags] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const [refresh, setRefresh] = useState(0);
+
+  // Optionally support /profile/:id to view others (can be made dynamic as enhancement)
+  // For now, show logged-in or first user fallback
   useEffect(() => {
     (async () => {
-      // TEMP: Show details for first user
-      const users = await fetchUsers();
-      if (users.length > 0) {
-        setUser(users[0]);
-        const allArticles = await fetchArticles();
-        setUserArticles(allArticles.filter(a => a.authorId === users[0].id));
+      let uid = authUser?.id;
+      let profileUser = null;
+      let allU = await fetchUsers();
+      setAllUsers(allU);
+      if (uid) {
+        profileUser = await fetchUserProfile(uid);
+      } else if (allU.length > 0) {
+        profileUser = allU[0];
+      }
+      setUser(profileUser);
+      if (profileUser?.id) {
+        const articles = await fetchArticles();
+        setUserArticles(articles.filter(a => a.authorId === profileUser.id));
+      } else {
+        setUserArticles([]);
       }
       setTags(await fetchTags());
     })();
-  }, []);
+  }, [authUser, refresh]);
+
+  function handleRefresh() { setRefresh(r => r + 1); }
+
   return (
     <MainLayout>
-      <UserProfile user={user} myArticles={userArticles} tags={tags} />
+      <UserProfile
+        user={user}
+        myArticles={userArticles}
+        tags={tags}
+        currentUser={authUser}
+        refreshProfile={handleRefresh}
+        allUsers={allUsers}
+      />
     </MainLayout>
   );
 }
