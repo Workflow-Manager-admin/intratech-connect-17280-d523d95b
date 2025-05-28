@@ -367,14 +367,43 @@ app.get("/api/users/:id", (req, res) => {
   res.json(user);
 });
 
-// PUBLIC_INTERFACE
-app.post("/api/users", (req, res) => {
+/*
+ * New user creation (shouldn't be available other than registration).
+ * If kept, restrict to admin.
+ *
+ * Profile update route: PATCH or PUT to /api/users/:id
+ */
+app.post("/api/users", requireAuth, requireAdmin, (req, res) => {
   const db = getDb();
   let { users } = db;
   const user = { id: Date.now(), ...req.body };
   users.push(user);
   setDb({ ...db, users });
   res.status(201).json(user);
+});
+
+// PUBLIC_INTERFACE
+app.put("/api/users/:id", requireAuth, (req, res) => {
+  // Profile editing: only user themself (req.user.id == :id) or admin
+  const { id } = req.params;
+  const db = getDb();
+  let { users } = db;
+  const idx = users.findIndex((u) => u.id == id);
+  if (idx === -1) return res.status(404).json({ error: "Not found" });
+
+  // Only user themselves or admin can edit
+  if (req.user.id != id && req.user.role !== "admin") {
+    return res.status(403).json({ error: "Not allowed to edit." });
+  }
+  // Only allow changing name, bio, avatar (not id/role/email/password!)
+  users[idx] = {
+    ...users[idx],
+    name: req.body.name ?? users[idx].name,
+    bio: req.body.bio ?? users[idx].bio,
+    avatar: req.body.avatar ?? users[idx].avatar
+  };
+  setDb({ ...db, users });
+  res.json(exposedUser(users[idx]));
 });
 
 // ---- SEARCH ----
