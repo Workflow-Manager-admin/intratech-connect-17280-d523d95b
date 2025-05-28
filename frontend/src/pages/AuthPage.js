@@ -14,6 +14,7 @@ import {
 import { Lock, Email, Person, Visibility, VisibilityOff } from "@mui/icons-material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthContext";
 
 // Utility functions for validation
 const validateEmail = (email) =>
