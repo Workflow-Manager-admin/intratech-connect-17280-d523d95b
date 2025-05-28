@@ -28,30 +28,6 @@ import { useAuth } from "./auth";
 import styled from "styled-components";
 import { fetchUserFollowing } from "./api";
 
-function MainLayout({ children, onSearch }) {
-  // Flex main + sidebar
-  return (
-    <div style={{
-      marginTop: 88,
-      display: "flex",
-      maxWidth: 1200,
-      marginLeft: "auto",
-      marginRight: "auto",
-      minHeight: "83vh",
-      boxSizing: "border-box"
-    }}>
-      <Sidebar onSearch={onSearch}/>
-      <div style={{ flex: 1, minWidth: 0, marginLeft: 30 }}>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-import { useAuth } from "./auth";
-import styled from "styled-components";
-import { fetchUserFollowing } from "./api";
-
 // Styled for blue/bright post creation area
 const NewPostBox = styled.div`
   background: #f2faff;
@@ -94,9 +70,28 @@ const DeleteBtn = styled.button`
   &:hover { background: #1976d2ee; }
 `;
 
+function MainLayout({ children, onSearch }) {
+  // Flex main + sidebar
+  return (
+    <div style={{
+      marginTop: 88,
+      display: "flex",
+      maxWidth: 1200,
+      marginLeft: "auto",
+      marginRight: "auto",
+      minHeight: "83vh",
+      boxSizing: "border-box"
+    }}>
+      <Sidebar onSearch={onSearch}/>
+      <div style={{ flex: 1, minWidth: 0, marginLeft: 30 }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// Home (shows feed and create/delete UI)
 function Home() {
-  // Removed: const { useAuth } = ... and duplicate imports (fixed error)
-  // Everything else remains as before
   const { user } = useAuth();
   const [articles, setArticles] = useState([]);
   const [users, setUsers] = useState([]);
@@ -106,13 +101,11 @@ function Home() {
   // Tabs: global = all, feed = self+following
   const [tab, setTab] = useState(user ? "feed" : "global");
   const [following, setFollowing] = useState([]);
-  const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState("");
   const [creatingTitle, setCreatingTitle] = useState("");
   const [creatingContent, setCreatingContent] = useState("");
   const [postLoading, setPostLoading] = useState(false);
 
-  // Load all data
   useEffect(() => {
     (async () => {
       setUsers(await fetchUsers());
@@ -124,13 +117,11 @@ function Home() {
     })();
   }, [user]);
 
-  // Tab select handler
   const handleTab = (which) => {
     setTab(which);
     setSearch("");
   };
 
-  // Search
   const handleSearch = async (q) => {
     setSearch(q);
     if (q) {
@@ -158,7 +149,6 @@ function Home() {
       setArticles([post, ...articles]);
       setCreatingTitle("");
       setCreatingContent("");
-      setCreating(false);
     } catch (err) {
       setCreateError("Failed to submit article.");
     }
@@ -182,10 +172,6 @@ function Home() {
     const allowed = new Set([user.id, ...(following||[])]);
     displayArticles = articles.filter(a => allowed.has(a.authorId));
   }
-
-  // Only allow create/delete for logged in users
-  // Render create new post box at top (blue theme)
-  // Delete button only for users own posts
 
   return (
     <MainLayout onSearch={handleSearch}>
