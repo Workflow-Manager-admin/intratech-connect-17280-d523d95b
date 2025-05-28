@@ -31,6 +31,7 @@ const formatDate = (d) =>
 
 // PUBLIC_INTERFACE
 export default function DashboardPage() {
+  const { user: authUser } = useAuth();
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,17 +39,18 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const theme = useTheme();
 
-  // Fetch user info and user's articles on mount
+  // Fetch user info and user's articles on mount (using auth user)
   useEffect(() => {
+    if (!authUser) return;
     setLoading(true);
     axios
-      .get(`/api/users/${ACTIVE_USER_ID}`)
+      .get(`/api/users/${authUser.id}`)
       .then((res) => setUser(res.data));
     axios
-      .get(`/api/articles?author=${ACTIVE_USER_ID}`)
+      .get(`/api/articles?author=${authUser.id}`)
       .then((res) => setPosts(res.data))
       .finally(() => setLoading(false));
-  }, []);
+  }, [authUser]);
 
   // Delete post handler
   // PUBLIC_INTERFACE
