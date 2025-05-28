@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Sidebar from "./components/Sidebar";
@@ -22,11 +22,13 @@ import {
   fetchCategories,
   fetchTags,
   fetchUserById,
-  searchArticles
+  searchArticles,
+  fetchUserFollowing,
+  fetchUserProfile,
+  fetchUserFollowers
 } from "./api";
 import { useAuth } from "./auth";
 import styled from "styled-components";
-import { fetchUserFollowing, fetchUserProfile, fetchUserFollowers } from "./api";
 
 // Styled for blue/bright post creation area
 const NewPostBox = styled.div`
@@ -402,22 +404,97 @@ function Tags() {
   );
 }
 
+// PUBLIC_INTERFACE
+// RequireAuth wrapper: only render children if user is logged in, else redirect to /login
+function RequireAuth({ children }) {
+  const { user } = useAuth();
+  const location = useLocation();
+  if (!user) {
+    // If not authenticated: redirect to /login with return location
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+  }
+  return children;
+}
+
+// Only for unauthenticated: redirect to home if already logged in
+function PublicOnly({ children }) {
+  const { user } = useAuth();
+  if (user) return <Navigate to="/" replace />;
+  return children;
+}
+
 export default function AppRoutes() {
+  // Use React context: must place useAuth within top of function
   return (
     <>
       <Header />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<AuthPage />} />
-        <Route path="/register" element={<AuthPage />} />
-
-        {/* Optionally, protect these with authentication wrapper: */}
-        <Route path="/articles/new" element={<WriteArticle />} />
-        <Route path="/articles/:id" element={<ViewArticle />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/categories" element={<Categories />} />
-        <Route path="/tags" element={<Tags />} />
-        {/* Additional category/tag route can be inserted here */}
+        <Route
+          path="/"
+          element={
+            <RequireAuth>
+              <Home />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <PublicOnly>
+              <AuthPage />
+            </PublicOnly>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicOnly>
+              <AuthPage />
+            </PublicOnly>
+          }
+        />
+        <Route
+          path="/articles/new"
+          element={
+            <RequireAuth>
+              <WriteArticle />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/articles/:id"
+          element={
+            <RequireAuth>
+              <ViewArticle />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <RequireAuth>
+              <Profile />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/categories"
+          element={
+            <RequireAuth>
+              <Categories />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/tags"
+          element={
+            <RequireAuth>
+              <Tags />
+            </RequireAuth>
+          }
+        />
+        {/* Fallback route */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <Footer />
     </>
