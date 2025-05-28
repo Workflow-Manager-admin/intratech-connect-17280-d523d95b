@@ -439,9 +439,6 @@ export default function AuthPage() {
                 {formMsg}
               </FormHelperText>
             )}
-            <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 2 }}>
-              Demo only. No real registration.
-            </Typography>
           </form>
         </AuthTabPanel>
       </Paper>
