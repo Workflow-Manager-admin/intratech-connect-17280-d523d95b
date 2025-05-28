@@ -10,10 +10,53 @@ const theme = createTheme({
     mode: "light",
     primary: { main: "#1A237E" },
     secondary: { main: "#3949AB" },
-    accent: { main: "#FFB300" }
+    accent: { main: "#FFB300" },
+    background: {
+      default: "#f6f7fb",
+      paper: "#fff"
+    }
+  },
+  shape: {
+    borderRadius: 9,
   },
   components: {
-    MuiButton: { styleOverrides: { root: { borderRadius: 6 } } },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 6,
+          fontWeight: 600,
+          textTransform: "none",
+          transition: "background .18s,box-shadow .18s",
+          boxShadow: "none",
+          "&:hover": {
+            backgroundColor: "#2231a0",
+            boxShadow: "0 2px 10px 0 rgba(30,51,150,0.08)"
+          }
+        }
+      }
+    },
+    MuiPaper: {
+      styleOverrides: {
+        rounded: {
+          borderRadius: 13
+        }
+      }
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 9,
+          background: "#fff"
+        }
+      }
+    },
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          fontSize: 16,
+        }
+      }
+    }
   }
 });
 
