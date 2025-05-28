@@ -33,10 +33,11 @@ export function AuthProvider({ children }) {
   }, [token, user]);
 
   // Helper: Save to both state and localStorage
+  // PUBLIC_INTERFACE
   const login = (token, user) => {
-    setToken(token);
+    if (token) setToken(token);
     setUser(user);
-    localStorage.setItem("token", token);
+    if (token) localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
     setLoading(false);
   };
