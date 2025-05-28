@@ -1,6 +1,7 @@
 import React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { useAuth } from "../auth";
 
 const StyledHeader = styled.header`
   background: var(--kavia-dark);
@@ -54,19 +55,54 @@ const StyledNavLink = styled(NavLink)`
   }
 `;
 
+const AuthBtn = styled.button`
+  background: none;
+  color: var(--kavia-orange);
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-left: 15px;
+  cursor: pointer;
+  padding: 4px 9px;
+  border-radius: 3px;
+  &:hover {
+    background: var(--kavia-orange);
+    color: #fff;
+  }
+`;
+
 export default function Header() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  // Handle logout and redirect to login page
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <StyledHeader>
       <Nav>
-        <Logo to="/"> 
+        <Logo to="/">
           <span className="logo-symbol">⌂</span> IntraTech Connect
         </Logo>
         <Menu>
-          <StyledNavLink to="/" end>Home</StyledNavLink>
-          <StyledNavLink to="/articles/new">Write</StyledNavLink>
-          <StyledNavLink to="/categories">Categories</StyledNavLink>
-          <StyledNavLink to="/tags">Tags</StyledNavLink>
-          <StyledNavLink to="/profile">Profile</StyledNavLink>
+          {user ? (
+            <>
+              <StyledNavLink to="/" end>Home</StyledNavLink>
+              <StyledNavLink to="/articles/new">Write</StyledNavLink>
+              <StyledNavLink to="/categories">Categories</StyledNavLink>
+              <StyledNavLink to="/tags">Tags</StyledNavLink>
+              <StyledNavLink to="/profile">Profile</StyledNavLink>
+              <AuthBtn type="button" onClick={handleLogout}>Logout</AuthBtn>
+            </>
+          ) : (
+            <>
+              <StyledNavLink to="/login">Login</StyledNavLink>
+              <StyledNavLink to="/register">Register</StyledNavLink>
+            </>
+          )}
         </Menu>
       </Nav>
     </StyledHeader>
