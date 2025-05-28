@@ -87,14 +87,75 @@ export async function deleteComment(id) {
 
 /**
  * PUBLIC_INTERFACE
- * Fetch user IDs that the specified user is following.
- * @param {string} userId
- * @returns {Array<string>} userId's followed users' IDs
+ * Fetch userIds that the specified user is following.
  */
 export async function fetchUserFollowing(userId) {
   if (!userId) return [];
   const res = await fetch(`/api/auth/follow/${userId}`);
   if (!res.ok) return [];
+  return await res.json();
+}
+
+/**
+ * PUBLIC_INTERFACE
+ * Fetch userIds for followers of the specified user.
+ */
+export async function fetchUserFollowers(userId) {
+  if (!userId) return [];
+  const res = await fetch(`/api/auth/followers/${userId}`);
+  if (!res.ok) return [];
+  return await res.json();
+}
+
+/**
+ * PUBLIC_INTERFACE
+ * Follow another user (by id). Returns { status: 'followed' } on success.
+ */
+export async function followUser(followerId, followedId) {
+  const res = await fetch(`/api/auth/follow`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ followerId, followedId }),
+  });
+  return await res.json();
+}
+
+/**
+ * PUBLIC_INTERFACE
+ * Unfollow a user (by id). Returns { status: 'unfollowed' } on success.
+ */
+export async function unfollowUser(followerId, followedId) {
+  const res = await fetch(`/api/auth/unfollow`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ followerId, followedId }),
+  });
+  return await res.json();
+}
+
+/**
+ * PUBLIC_INTERFACE
+ * Fetch detailed user profile info by user id (from /api/auth/profile/:id)
+ */
+export async function fetchUserProfile(userId) {
+  if (!userId) return null;
+  const res = await fetch(`/api/auth/profile/${userId}`);
+  if (!res.ok) return null;
+  return await res.json();
+}
+
+/**
+ * PUBLIC_INTERFACE
+ * Update user profile (PUT /api/auth/profile/:id).
+ * Body: any updatable fields (bio, avatarUrl, name...)
+ */
+export async function updateUserProfile(userId, updates) {
+  if (!userId) throw new Error("User id required");
+  const res = await fetch(`/api/auth/profile/${userId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updates),
+  });
   return await res.json();
 }
 
