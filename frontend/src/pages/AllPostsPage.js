@@ -198,6 +198,7 @@ export default function AllPostsPage() {
                 onClick={() => navigate(`/articles/${a.id}`)}
               >
                 <Avatar
+                  src={users[a.authorId]?.avatar || ""}
                   sx={{
                     ml: 2,
                     mr: 2,
@@ -206,7 +207,9 @@ export default function AllPostsPage() {
                     fontWeight: 700,
                   }}
                 >
-                  {users[a.authorId]?.name?.[0] || "U"}
+                  {!users[a.authorId]?.avatar
+                    ? (users[a.authorId]?.name?.[0] || "U")
+                    : ""}
                 </Avatar>
                 <CardContent sx={{ flex: 1, minWidth: 0 }}>
                   <Typography variant="h6" fontWeight={600} color="primary">
