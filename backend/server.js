@@ -284,14 +284,17 @@ app.get("/api/articles/:articleId/comments", (req, res) => {
   res.json(comments.filter((c) => c.articleId == articleId));
 });
 
+/*
+ * Comment posting requires authentication.
+ */
 // PUBLIC_INTERFACE
-app.post("/api/articles/:articleId/comments", (req, res) => {
+app.post("/api/articles/:articleId/comments", requireAuth, (req, res) => {
   const db = getDb();
   let { comments, articles } = db;
   const comment = {
     id: Date.now(),
     articleId: Number(req.params.articleId),
-    authorId: req.body.authorId,
+    authorId: req.user.id,
     content: req.body.content,
     createdAt: new Date().toISOString(),
   };
@@ -314,8 +317,11 @@ app.get("/api/categories", (req, res) => {
   res.json(categories);
 });
 
+/*
+ * Category creation requires admin auth.
+ */
 // PUBLIC_INTERFACE
-app.post("/api/categories", (req, res) => {
+app.post("/api/categories", requireAuth, requireAdmin, (req, res) => {
   const db = getDb();
   let { categories } = db;
   const cat = { id: Date.now(), ...req.body };
@@ -332,8 +338,11 @@ app.get("/api/tags", (req, res) => {
   res.json(tags);
 });
 
+/*
+ * Tag creation requires admin auth.
+ */
 // PUBLIC_INTERFACE
-app.post("/api/tags", (req, res) => {
+app.post("/api/tags", requireAuth, requireAdmin, (req, res) => {
   const db = getDb();
   let { tags } = db;
   const tag = { id: Date.now(), ...req.body };
