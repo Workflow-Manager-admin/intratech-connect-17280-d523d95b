@@ -80,6 +80,84 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
 
+// ---- AUTH ROUTES ----
+
+// PUBLIC_INTERFACE
+app.post("/api/auth/register", async (req, res) => {
+  /**
+   * Request body: { name, email, password }
+   * Response: { token, user } or error message
+   */
+  const { name, email, password } = req.body || {};
+  // Basic validation
+  if (
+    !name || typeof name !== "string" || name.trim().length < 2 ||
+    !email || typeof email !== "string" || !/^[^@]+@[^@]+\.[^@]+$/.test(email) ||
+    !password || typeof password !== "string" || password.length < 5
+  ) {
+    return res.status(400).json({ error: "Invalid registration fields." });
+  }
+
+  let db = getDb();
+  let { users } = db;
+
+  if (findUserByEmail(email, users)) {
+    return res.status(409).json({ error: "Email already registered." });
+  }
+
+  // Hash password
+  let passwordHash;
+  try {
+    passwordHash = await bcrypt.hash(password, 10);
+  } catch {
+    return res.status(500).json({ error: "Failed to hash password." });
+  }
+
+  const id = Date.now();
+  const user = {
+    id,
+    name: name.trim(),
+    email: email.trim().toLowerCase(),
+    role: "user",
+    passwordHash,
+    bio: "",
+    avatar: ""
+  };
+  users.push(user);
+  setDb({ ...db, users });
+
+  // Issue JWT
+  const token = createToken(user);
+  res.status(201).json({ token, user: exposedUser(user) });
+});
+
+// PUBLIC_INTERFACE
+app.post("/api/auth/login", async (req, res) => {
+  /**
+   * Request body: { email, password }
+   * Response: { token, user } or error message
+   */
+  const { email, password } = req.body || {};
+  if (!email || typeof email !== "string" || !password || typeof password !== "string") {
+    return res.status(400).json({ error: "Missing email or password." });
+  }
+
+  let { users } = getDb();
+  const user = findUserByEmail(email, users);
+  if (!user || !user.passwordHash) {
+    return res.status(401).json({ error: "Invalid email or password." });
+  }
+
+  // Compare hash
+  const isMatch = await bcrypt.compare(password, user.passwordHash);
+  if (!isMatch) {
+    return res.status(401).json({ error: "Invalid email or password." });
+  }
+
+  const token = createToken(user);
+  res.json({ token, user: exposedUser(user) });
+});
+
 // ---- ARTICLES ----
 
 // PUBLIC_INTERFACE
