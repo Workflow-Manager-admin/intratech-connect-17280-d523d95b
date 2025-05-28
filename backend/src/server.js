@@ -8,6 +8,7 @@ const commentsRouter = require('./routes/comments');
 const categoriesRouter = require('./routes/categories');
 const tagsRouter = require('./routes/tags');
 const searchRouter = require('./routes/search');
+const authRouter = require('./routes/auth'); // <--- ADDED
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,6 +24,7 @@ app.use('/api/comments', commentsRouter);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/tags', tagsRouter);
 app.use('/api/search', searchRouter);
+app.use('/api/auth', authRouter); // <--- ADDED
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'IntraTech Connect API is running.' });
