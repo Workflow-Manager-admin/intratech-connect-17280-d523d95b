@@ -85,6 +85,19 @@ export async function deleteComment(id) {
   return await res.json();
 }
 
+/**
+ * PUBLIC_INTERFACE
+ * Fetch user IDs that the specified user is following.
+ * @param {string} userId
+ * @returns {Array<string>} userId's followed users' IDs
+ */
+export async function fetchUserFollowing(userId) {
+  if (!userId) return [];
+  const res = await fetch(`/api/auth/follow/${userId}`);
+  if (!res.ok) return [];
+  return await res.json();
+}
+
 // PUBLIC_INTERFACE
 export async function searchArticles(q) {
   const url = new URL("/api/search", window.location.origin);
