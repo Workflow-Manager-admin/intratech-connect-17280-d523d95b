@@ -80,6 +80,30 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
 
+// ---- JWT AUTH MIDDLEWARE ----
+function requireAuth(req, res, next) {
+  // Header format: Authorization: Bearer <token>
+  const header = req.headers["authorization"];
+  if (!header) return res.status(401).json({ error: "Missing auth token." });
+  const [scheme, token] = header.split(" ");
+  if (scheme !== "Bearer" || !token) {
+    return res.status(401).json({ error: "Malformed auth header." });
+  }
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) return res.status(401).json({ error: "Invalid or expired token." });
+    req.user = decoded; // contains {id, name, email, role}
+    next();
+  });
+}
+
+// Utility for admin-only endpoints
+function requireAdmin(req, res, next) {
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(403).json({ error: "Admin privileges required." });
+  }
+  next();
+}
+
 // ---- AUTH ROUTES ----
 
 // PUBLIC_INTERFACE
