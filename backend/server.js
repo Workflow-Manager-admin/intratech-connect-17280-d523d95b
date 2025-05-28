@@ -380,6 +380,35 @@ app.post("/api/tags", requireAuth, requireAdmin, (req, res) => {
   res.status(201).json(tag);
 });
 
+/**
+ * Avatar image upload. POST /api/users/:id/avatar
+ * Only the authenticated user or admin can upload/change avatar for themselves.
+ * Saves file to uploads, sets user.avatar to /uploads/filename.ext and persists.
+ */
+// PUBLIC_INTERFACE
+app.post("/api/users/:id/avatar", requireAuth, avatarUpload.single("avatar"), (req, res) => {
+  const { id } = req.params;
+  let db = getDb();
+  let { users } = db;
+  const idx = users.findIndex((u) => u.id == id);
+
+  if (idx === -1) return res.status(404).json({ error: "Not found" });
+
+  // Only user OR admin
+  if (req.user.id != id && req.user.role !== "admin") {
+    return res.status(403).json({ error: "Not allowed to update avatar." });
+  }
+  // Only accept a file named "avatar"
+  if (!req.file) return res.status(400).json({ error: "No file uploaded. Use 'avatar' field." });
+
+  // Generate relative path (how frontend accesses it)
+  const avatarUrl = "/uploads/" + req.file.filename;
+  users[idx].avatar = avatarUrl;
+  setDb({ ...db, users });
+
+  res.json(exposedUser(users[idx]));
+});
+
 // ---- USERS ----
 
 // PUBLIC_INTERFACE
@@ -429,7 +458,11 @@ app.put("/api/users/:id", requireAuth, (req, res) => {
     ...users[idx],
     name: req.body.name ?? users[idx].name,
     bio: req.body.bio ?? users[idx].bio,
-    avatar: req.body.avatar ?? users[idx].avatar
+    // If string, use new avatar; otherwise keep same
+    avatar:
+      typeof req.body.avatar === "string"
+        ? req.body.avatar
+        : users[idx].avatar
   };
   setDb({ ...db, users });
   res.json(exposedUser(users[idx]));
