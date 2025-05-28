@@ -9,6 +9,7 @@ import ArticleView from "./components/ArticleView";
 import UserProfile from "./components/UserProfile";
 import CategoryList from "./components/CategoryList";
 import TagList from "./components/TagList";
+import AuthPage from "./components/AuthPage";
 import {
   fetchArticles,
   fetchArticleById,
