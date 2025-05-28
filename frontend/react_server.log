@@ -1,0 +1,85 @@
+
+> react-kavia@0.1.0 start
+> react-scripts start
+
+(node:2320) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:2320) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Compiled with warnings.
+
+[eslint] 
+src/AppRoutes.js
+  Line 1:38:  'useCallback' is defined but never used  no-unused-vars
+
+src/components/ArticleEditor.js
+  Line 1:17:  'useEffect' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/AppRoutes.js
+  Line 1:38:  'useCallback' is defined but never used  no-unused-vars
+
+src/components/ArticleEditor.js
+  Line 1:17:  'useEffect' is defined but never used  no-unused-vars
+
+webpack compiled with 1 warning
+Failed to compile.
+
+Module not found: Error: Can't resolve '/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/@pmmmwh/react-refresh-webpack-plugin/client/ReactRefreshEntry.js' in '/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect'
+WARNING in [eslint] 
+src/AppRoutes.js
+  Line 1:38:  'useCallback' is defined but never used  no-unused-vars
+
+src/components/ArticleEditor.js
+  Line 1:17:  'useEffect' is defined but never used  no-unused-vars
+
+ERROR in Module not found: Error: Can't resolve '/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/@pmmmwh/react-refresh-webpack-plugin/client/ReactRefreshEntry.js' in '/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect'
+
+ERROR in Module not found: Error: Can't resolve '/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/webpack-dev-server/client/index.js?protocol=ws%3A&hostname=0.0.0.0&port=3000&pathname=%2Fws&logging=none&overlay=%7B%22errors%22%3Atrue%2C%22warnings%22%3Afalse%7D&reconnect=10&hot=true&live-reload=true' in '/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect'
+
+ERROR in Module not found: Error: Can't resolve '/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/webpack/hot/dev-server.js' in '/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect'
+
+ERROR in main
+Module not found: Error: Can't resolve '/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/src/index.js' in '/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect'
+
+ERROR in Child compilation failed:
+Module not found: Error: Can't resolve '/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/html-webpack-plugin/lib/loader.js' in '/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect'
+ModuleNotFoundError: Module not found: Error: Can't resolve '/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/html-webpack-plugin/lib/loader.js' in '/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect'
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/webpack/lib/Compilation.js:2123:28
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/webpack/lib/NormalModuleFactory.js:923:13
+    at eval (eval at create (/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:10:1)
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/webpack/lib/NormalModuleFactory.js:339:22
+    at eval (eval at create (/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:9:1)
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/webpack/lib/NormalModuleFactory.js:520:22
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/webpack/lib/NormalModuleFactory.js:155:10
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/webpack/lib/NormalModuleFactory.js:745:23
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/neo-async/async.js:2830:7
+    at done (/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/neo-async/async.js:2925:13)
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/webpack/lib/NormalModuleFactory.js:1192:23
+    at finishWithoutResolve (/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/enhanced-resolve/lib/Resolver.js:567:11)
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/enhanced-resolve/lib/Resolver.js:656:15
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/enhanced-resolve/lib/Resolver.js:718:5
+    at eval (eval at create (/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:16:1)
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/enhanced-resolve/lib/Resolver.js:718:5
+    at eval (eval at create (/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:16:1)
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/enhanced-resolve/lib/Resolver.js:718:5
+    at eval (eval at create (/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:15:1)
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/enhanced-resolve/lib/Resolver.js:718:5
+    at eval (eval at create (/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:15:1)
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/enhanced-resolve/lib/Resolver.js:718:5
+    at eval (eval at create (/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:16:1)
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/enhanced-resolve/lib/Resolver.js:718:5
+    at eval (eval at create (/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:16:1)
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/enhanced-resolve/lib/Resolver.js:718:5
+    at eval (eval at create (/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:16:1)
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/enhanced-resolve/lib/Resolver.js:718:5
+    at eval (eval at create (/home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:15:1)
+    at /home/kavia/workspace/code-generation/intratech-connect-17280-d523d95b/intratech_connect/node_modules/enhanced-resolve/lib/DirectoryExistsPlugin.js:41:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:81:21)
+
+1 ERROR in child compilations (Use 'stats.children: true' resp. '--stats-children' for more details)
+webpack compiled with 6 errors and 1 warning
